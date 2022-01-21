@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/dat.gui.css" />
+  <style>
+    body {
+      margin: 0;
+    }
+  </style>
+  <script type="text/javascript" src="js/dat.gui.js"></script>
+  <title>Canvas Waves</title>
+</head>
+
+<body>
+  <canvas id="canvas01"></canvas>
+
+  <script type="text/javascript">
+    var gui = new dat.gui.GUI();
+
+    const htmlCanvas = document.getElementById("canvas01");
+    htmlCanvas.width = window.innerWidth - 4;
+    htmlCanvas.height = window.innerHeight - 4;
+    const canvas = htmlCanvas.getContext("2d");
+
+    const wave = {
+      y: 462,
+      length: 0.0075,
+      amplitude: 365,
+      frequency: 0.017,
+    }
+
+    const strokeColor = {
+      h: 365,
+      s: 50,
+      l: 50,
+    }
+
+    const background = {
+      r: 0,
+      g: 0,
+      b: 0,
+      a: 0.05,
+    }
+
+    const waveFolder = gui.addFolder('wave');
+    waveFolder.add(wave, 'y', 0, htmlCanvas.height);
+    waveFolder.add(wave, 'length', -0.01, 0.01);
+    waveFolder.add(wave, 'amplitude', -300, 300);
+    waveFolder.add(wave, 'frequency', -0.01, 1);
+    waveFolder.open();
+
+    const strokeFolder = gui.addFolder('stroke');
+    strokeFolder.add(strokeColor, 'h', 0, 255);
+    strokeFolder.add(strokeColor, 's', 0, 100);
+    strokeFolder.add(strokeColor, 'l', 0, 100);
+    strokeFolder.open();
+
+    
+    const backgroundFolder = gui.addFolder('background');
+    backgroundFolder.add(background, 'r', 0, 255);
+    backgroundFolder.add(background, 'g', 0, 255);
+    backgroundFolder.add(background, 'b', 0, 255);
+    backgroundFolder.add(background, 'a', 0.01, 0.1);
+    backgroundFolder.open();
+
+    let increment = wave.frequency;
+    function animate() {
+      canvas.fillStyle = `rgba(${background.r},${background.g}, ${background.b}, ${background.a})`;
+      // Использование имен элементов в строке параметров.
+      canvas.strokeStyle = `hsl(${Math.abs(strokeColor.h * Math.sin(increment))}, ${strokeColor.s}%, ${strokeColor.l}%)`;
+      canvas.fillRect(0, 0, htmlCanvas.width, htmlCanvas.height);
+      canvas.beginPath();
+      canvas.moveTo(0, htmlCanvas.height / 2);
+      for (let i = 0; i < htmlCanvas.width; i++) {
+        canvas.lineTo(i, wave.y + Math.sin(i * wave.length + increment) * wave.amplitude * Math.sin(increment));
+      }
+      canvas.stroke();
+      canvas.closePath();
+      // Увеличение частоты волны на 0.017.
+      increment += wave.frequency;
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
+</body>
+
+</html>
